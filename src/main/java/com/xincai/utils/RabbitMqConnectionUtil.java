@@ -6,11 +6,13 @@ import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+
 /**
  * @author xincai
+ * 建立与RabbitMQ连接
  */
 public class RabbitMqConnectionUtil {
-    public static Connection getConnection(){
+    public static Connection getConnection() throws IOException, TimeoutException {
         //定义连接工厂
         ConnectionFactory factory = new ConnectionFactory();
         //设置服务地址
@@ -22,15 +24,7 @@ public class RabbitMqConnectionUtil {
         factory.setUsername("root");
         factory.setPassword("root");
         // 通过工程获取连接
-        Connection connection = null;
-        try {
-            connection = factory.newConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
+        Connection connection = factory.newConnection();
         return connection;
-
     }
 }
