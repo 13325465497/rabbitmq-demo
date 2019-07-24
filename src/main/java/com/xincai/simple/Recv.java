@@ -32,7 +32,6 @@ public class Recv {
                 //body 消息体
                 String message = new String(body);
                 //自定义获取消息时异常,如果是手动回滚则会怎么样
-                int i = 1 / 0;
                 System.out.println("获取消息 : " + message);
                 //手动进行ACK回滚 , 如果监听设置手动进行ACK ,这里如果不手动提交的话, 消息队列中消息不会被真正的消费掉
                 channel.basicAck(envelope.getDeliveryTag(),false);

@@ -1,0 +1,14 @@
+spring:
+  rabbitmq:
+    host: 39.105.184.86
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: demo
+    listener:
+      direct:
+        acknowledge-mode: manual  #开启发布队列 , 路由定向模式 手动ACK
+      simple:
+        acknowledge-mode: manual #开启简单对了手动ACK
+server:
+  port: 10001

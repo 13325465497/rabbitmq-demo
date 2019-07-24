@@ -2,6 +2,7 @@ package com.xincai.direct;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.MessageProperties;
 import com.xincai.utils.RabbitMqConnectionUtil;
 
 import java.io.IOException;
@@ -29,12 +30,12 @@ public class Send {
         Connection connection = RabbitMqConnectionUtil.getConnection();
         // 获取通道
         Channel channel = connection.createChannel();
-        // 声明exchange交换机，指定类型为direct路由定向模式
-        channel.exchangeDeclare(EXCHANGE_NAME, "direct");
+        // 声明exchange交换机，指定类型为direct路由定向模式 第三个参数为true , 表示交换机持久化
+        channel.exchangeDeclare(EXCHANGE_NAME, "direct", true);
         // 消息内容
         String message = "商品新增了， id = 1001";
-        // 发送消息，并且指定routing key 为：insert ,代表新增商品
-        channel.basicPublish(EXCHANGE_NAME, "update", null, message.getBytes());
+        // 发送消息，并且指定routing key 为：insert ,代表新增商品 , 第三个参数为null , 表示消息不持久话 , 为 MessageProperties.PERSISTENT_TEXT_PLAIN 表示持久化
+        channel.basicPublish(EXCHANGE_NAME, "update", MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
         System.out.println(" [商品服务：] 发送消息 '" + message + "'");
         //释放资源
         channel.close();

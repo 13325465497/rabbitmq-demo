@@ -32,8 +32,8 @@ public class Send {
         Connection connection = RabbitMqConnectionUtil.getConnection();
         // 获取通道
         Channel channel = connection.createChannel();
-        //声明Exchange交换机 , 指定类型为fanout 广播式 , 注:这里运用了工厂设计模式 ,根据类型去匹配对应的模式
-        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+        //声明Exchange交换机 , 指定类型为fanout 广播式 , 注:这里运用了工厂设计模式 ,根据类型去匹配对应的模式 , 第三个参数为true , 表示交换机持久化
+        channel.exchangeDeclare(EXCHANGE_NAME, "fanout",true);
         // 消息内容
         String message = "Hello everyone, 这里是发布订阅, 经过转换机, 广播模式";
         // 发布消息到Exchange
