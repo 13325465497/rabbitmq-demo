@@ -1,4 +1,4 @@
-package com.xincai;
+package com;
 
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;

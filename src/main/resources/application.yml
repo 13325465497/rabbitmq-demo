@@ -9,6 +9,14 @@ spring:
       direct:
         acknowledge-mode: manual  #开启发布队列 , 路由定向模式 手动ACK
       simple:
-        acknowledge-mode: manual #开启简单对了手动ACK
+        retry:
+          ####开启消费者重试
+          enabled: true
+          ####最大重试次数
+          max-attempts: 5
+          ####重试间隔次数
+          initial-interval: 3000
+          ####开启手动ack
+        acknowledge-mode: manual
 server:
-  port: 10001
+  port: 8080

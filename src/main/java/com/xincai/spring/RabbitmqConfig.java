@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author xincai
  * 配置类
@@ -59,12 +62,19 @@ public class RabbitmqConfig {
 
     public static final String simple_queue = "simple_queue";
     /**
-     * 订阅模式-direct : 路由定向模式
+     * 定义死信队列相关信息
      */
-    public static final String direct_exchange = "direct_exchange";
-    public static final String direct_exchange_queue_1 = "direct_exchange_queue_1";
-    public static final String direct_exchange_queue_2 = "direct_exchange_queue_2";
-
+    public final static String deadQueueName = "dead_queue";
+    public final static String deadRoutingKey = "dead_routing_key";
+    public final static String deadExchangeName = "dead_exchange";
+    /**
+     * 死信队列 交换机标识符
+     */
+    public static final String DEAD_LETTER_QUEUE_KEY = "x-dead-letter-exchange";
+    /**
+     * 死信队列交换机绑定键标识符
+     */
+    public static final String DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
     /**
      * 订阅模式-Fanout : 广播模式
      */
@@ -80,7 +90,6 @@ public class RabbitmqConfig {
     public static final String topic_exchange_queue_2 = "topic_exchange_queue_2";
     public static final String topic_exchange_queue_2_routingKey = "item.insert";
 
-
     /**
      * 针对消费者配置
      * 1. 设置交换机类型
@@ -93,7 +102,7 @@ public class RabbitmqConfig {
     @Bean
     public DirectExchange DirectExchange() {
         //定义 发布订阅-路由定向交换机
-        return new DirectExchange(direct_exchange);
+        return new DirectExchange(deadExchangeName);
     }
 
     @Bean
@@ -110,6 +119,7 @@ public class RabbitmqConfig {
 
     /**
      * simple简单队列
+     *
      * @return
      */
     @Bean
@@ -157,12 +167,20 @@ public class RabbitmqConfig {
      */
     @Bean
     public Queue fanout_exchange_queue_1() {
-        return new Queue(fanout_exchange_queue_1, true); //队列持久
+        // 将普通队列绑定到死信队列交换机上
+        Map<String, Object> args = new HashMap<>(2);
+        args.put(DEAD_LETTER_QUEUE_KEY, deadExchangeName);
+        args.put(DEAD_LETTER_ROUTING_KEY, deadRoutingKey);
+        return new Queue(fanout_exchange_queue_1, true, false, false, args); //队列持久
     }
 
     @Bean
     public Queue fanout_exchange_queue_2() {
-        return new Queue(fanout_exchange_queue_2, true); //队列持久
+        // 将普通队列绑定到死信队列交换机上
+        Map<String, Object> args = new HashMap<>(2);
+        args.put(DEAD_LETTER_QUEUE_KEY, deadExchangeName);
+        args.put(DEAD_LETTER_ROUTING_KEY, deadRoutingKey);
+        return new Queue(fanout_exchange_queue_2, true, false, false, args); //队列持久
     }
 
     /**
@@ -182,4 +200,18 @@ public class RabbitmqConfig {
         //绑定 fanout_exchange_queue_2队列 , 和 FanoutExchange广播交换机
         return BindingBuilder.bind(fanout_exchange_queue_2).to(fanoutExchange);
     }
+
+    /**
+     * 定义死信队列 , 绑定死信交换机, 绑定 , 如绑定死信交换机的消息queue , 如符合死信要求则会执行
+     */
+    @Bean
+    public Queue direct_exchange_dead_queue() {
+        return new Queue(deadQueueName, true);
+    }
+
+    @Bean
+    public Binding bindingDirectExchangeDead() {
+        return BindingBuilder.bind(direct_exchange_dead_queue()).to(DirectExchange()).with(deadRoutingKey);
+    }
+
 }

@@ -17,6 +17,7 @@ public class FanoutSendController {
     private RabbitTemplate rabbitTemplate;
     @GetMapping("fanoutSend")
     public String fanoutSend(){
+        System.out.println("进来了 ~~`");
         try {
             MsgProducer msgProducer=new MsgProducer(rabbitTemplate);
             Item item=new Item();

@@ -20,17 +20,17 @@ public class Listener {
     /**
      * 手动确认消息，假如不确认的话，消息一直会存在在队列当中，下次消费的时候，就会出现重复消费
      *
-     * @param object  消息内容
+     * @param 消息内容
      * @param channel 队列
      * @param message 消息整体
      */
-   /* @RabbitListener(queues = RabbitmqConfig.fanout_exchange_queue_1)
+    /*@RabbitListener(queues = RabbitmqConfig.fanout_exchange_queue_1)
     @RabbitHandler
     public void fanoutQueue1Receiver(Item item, Channel channel, Message message) {
         try {
             //告诉服务器收到这条消息 已经被我消费了 可以在队列删掉 这样以后就不会再发了 否则消息服务器以为这条消息没处理掉 后续还会在发
             System.out.println("接收处理队列A当中的消息：" + item);
-            int a = 1/0;
+            int a = 1 / 0;
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (IOException e) {
             //丢弃这条消息
@@ -63,14 +63,27 @@ public class Listener {
      */
     @RabbitListener(queues = RabbitmqConfig.fanout_exchange_queue_1)
     @RabbitHandler//获取消息头内容注解
-    public void fanoutQueue1Receiver(Item item) {
-        System.out.println("fanoutRecv1 接受消息 : " + item + " 我是发布订阅广播消费者 1  ");
+    public void fanoutQueue1Receiver(Item item, Channel channel, Message message) throws IOException {
+        try {
+            System.out.println("fanoutRecv1 接受消息 : " + item + " 我是发布订阅广播消费者 2  ");
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+            System.out.println("fanoutRecv1 消费消息异常 : 准备放入死信");
+        }
     }
 
     @RabbitListener(queues = RabbitmqConfig.fanout_exchange_queue_2)
     @RabbitHandler//获取消息头内容注解
-    public void fanoutQueue2Receiver(Item item) {
-        System.out.println("fanoutRecv2 接受消息 : " + item + " 我是发布订阅广播消费者 2  ");
+    public void fanoutQueue2Receiver(Item item, Channel channel, Message message) throws IOException {
+        try {
+            System.out.println("fanoutRecv2 接受消息 : " + item + " 我是发布订阅广播消费者 2  ");
+            int a = 1 / 0;
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+            System.out.println("fanoutRecv2 消费消息异常 : 准备放入死信");
+        }
     }
 
     /**
@@ -80,13 +93,38 @@ public class Listener {
      */
     @RabbitListener(queues = RabbitmqConfig.topic_exchange_queue_1)
     @RabbitHandler//获取消息头内容注解
-    public void TopicQueue1Receiver(Item item) {
-        System.out.println("topic_exchange_queue_1 接受消息 : " + item + " 好像是个商品");
+    public void TopicQueue1Receiver(Item item, Channel channel, Message message) throws IOException {
+        try {
+            System.out.println("topic_exchange_queue_1 接受消息 : " + item + " 好像是个商品");
+
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+            System.out.println("topic_exchange_queue_1 消费消息异常 : 准备放入死信");
+        }
     }
 
     @RabbitListener(queues = RabbitmqConfig.topic_exchange_queue_2)
     @RabbitHandler//获取消息头内容注解
-    public void TopicQueue2Receiver(Item item) {
-        System.out.println("topic_exchange_queue_2 接受消息 : " + item + " 好像是个商品");
+    public void TopicQueue2Receiver(Item item, Channel channel, Message message) throws IOException {
+        try {
+            System.out.println("topic_exchange_queue_2 接受消息 : " + item + " 好像是个商品");
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+            System.out.println("topic_exchange_queue_2 消费消息异常 : 准备放入死信");
+        }
+    }
+
+    @RabbitListener(queues = RabbitmqConfig.deadQueueName)
+    @RabbitHandler
+    public void DirectDeadQueue(Object msg, Channel channel, Message message) {
+        System.out.println("死信dead queue 接受消息 : " + msg);
+        try {
+            //手动回滚消息
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
